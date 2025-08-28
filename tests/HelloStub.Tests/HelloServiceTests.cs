@@ -14,14 +14,10 @@ public class StubHttpMessageHandler : HttpMessageHandler
         };
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        var key = request.RequestUri!.ToString();
-        if (_map.TryGetValue(key, out var resp))
-            return Task.FromResult(resp);
-
-        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-    }
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        => Task.FromResult(_map.TryGetValue(request.RequestUri!.ToString(), out var resp)
+            ? resp
+            : new HttpResponseMessage(HttpStatusCode.NotFound));
 }
 
 public class HelloServiceTests
